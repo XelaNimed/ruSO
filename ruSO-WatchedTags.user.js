@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ruSO-WatchedTags
 // @namespace    https://github.com/XelaNimed
-// @version      0.1
+// @version      0.2
 // @description  Various improvements for Russian-language StackOverflow.
 // @author       Xela Nimed
 // @match        https://ru.stackoverflow.com/*
