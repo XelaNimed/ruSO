@@ -23,7 +23,7 @@ window.addEventListener('load', function() {
 
     if (tags.length) {
         var url = urlPrefix + tags.join("+or+");
-        var spanArr = $("#sidebar").find("span:contains('" + spanText + "')");
+        var spanArr = $sidebar.find("span:contains('" + spanText + "')");
         $sidebar.find("span.grid--cell.mr4").hide();
         if(spanArr.length > 0) {
             spanArr[0].innerHTML = '<a class="post-tag user-tag" href="' + url + '">' + spanText + '</a>';
