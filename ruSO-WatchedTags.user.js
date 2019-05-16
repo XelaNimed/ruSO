@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ruSO-WatchedTags
 // @namespace    https://github.com/XelaNimed
-// @version      0.2
+// @version      0.3
 // @description  Various improvements for Russian-language StackOverflow.
 // @author       Xela Nimed
 // @match        https://ru.stackoverflow.com/*
@@ -15,6 +15,14 @@ window.addEventListener('load', function() {
         urlPrefix = window.location.origin + "/questions/tagged/",
         spanText = "Отслеживаемые метки",
         $sidebar = $("#sidebar");
+
+    $sidebar
+    .find("div.s-sidebarwidget--header:contains('Важное на Мете')")
+    .attr("title", "Click to toggle")
+    .css("cursor", "pointer")
+    .on("click", function(e){
+        $(this).parent().find("ul.s-sidebarwidget--content, div:not(:first)").toggle();
+    });
 
     $(".js-watched-tag-list a.user-tag").each(function (idx, itm) {
         var url = itm.href;
