@@ -1,14 +1,15 @@
 // ==UserScript==
-// @name         ruSO-WatchedTags
-// @namespace    https://github.com/XelaNimed
-// @version      0.5
-// @description  Various improvements for Russian-language StackOverflow.
-// @author       Xela Nimed
-// @match        https://ru.stackoverflow.com/*
-// @match        https://ru.meta.stackoverflow.com/*
-// @grant        none
+// @name        ruSO-WatchedTags
+// @namespace   https://github.com/XelaNimed
+// @version     0.5.1
+// @description Various improvements for Russian-language StackOverflow.
+// @author      Xela Nimed
+// @match       https://ru.stackoverflow.com/*
+// @match       https://ru.meta.stackoverflow.com/*
+// @grant       none
 // @updateURL   https://raw.githubusercontent.com/XelaNimed/ruSO/master/ruSO-WatchedTags.user.js
 // @downloadURL https://raw.githubusercontent.com/XelaNimed/ruSO/master/ruSO-WatchedTags.user.js
+// @iconURL     https://cdn.sstatic.net/Sites/ru/img/favicon.ico
 // ==/UserScript==
 window.addEventListener('load', function() {
 
@@ -18,6 +19,7 @@ window.addEventListener('load', function() {
         urlPrefix = window.location.origin + "/questions/tagged/",
         watchedTagsText = "Отслеживаемые метки",
         importantOnMetaText = "Важное на Мете",
+        $ = window.jQuery,
         $sidebar = $("#sidebar"),
         $impMeta = $sidebar.find("div.s-sidebarwidget--header:contains('" + importantOnMetaText + "')");
 
