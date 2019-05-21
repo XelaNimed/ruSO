@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        ruSO-WatchedTags
 // @namespace   https://github.com/XelaNimed
-// @version     0.6
+// @version     0.6.1
 // @description Various improvements for Russian-language StackOverflow.
 // @author      Xela Nimed
 // @match       https://ru.stackoverflow.com/*
@@ -57,7 +57,7 @@ var ruSO = {
 				};
 				self
 				.$sidebar
-				.find("div.s-sidebarwidget--header")
+				.find("div.s-sidebarwidget:first div.s-sidebarwidget--header")
 				.each(function (idx, itm) {
 					var $itm = $(itm);
 					$itm
