@@ -1,11 +1,11 @@
 // ==UserScript==
-// @name        ruSO-WatchedTags
+// @name        SO
 // @namespace   https://github.com/XelaNimed
-// @version     0.6.2
+// @version     0.7.0
 // @description Various improvements for Russian-language StackOverflow.
 // @author      Xela Nimed
-// @match       https://ru.stackoverflow.com/*
-// @match       https://ru.meta.stackoverflow.com/*
+// @match       https://*.stackoverflow.com/*
+// @match       https://*.meta.stackoverflow.com/*
 // @grant       none
 // @updateURL   https://raw.githubusercontent.com/XelaNimed/ruSO/master/ruSO-WatchedTags.user.js
 // @downloadURL https://raw.githubusercontent.com/XelaNimed/ruSO/master/ruSO-WatchedTags.user.js
@@ -20,23 +20,32 @@ window.addEventListener('load', function () {
 }, false);
 
 var ruSO = {
+	$sidebar: $("#sidebar"),
+	$content: $("#content"),
+	$container: $("body>.container"),
 	params: {
 		animationSpeed: 250
 	},
 	keys: {
-		showMetasKey: "showMetaPosts"
+		showMetasKey: "showMetaPosts",
+        contentMaxWidth: "contentMaxWidth",
+        containerMaxWidth: "containerMaxWidth",
+        isFullWidth: "isFullWidth"
 	},
 	strings: {
 		watchedTagsText: "Отслеживаемые метки",
-		clickToToggle: "Скрыть/показать"
+		clickToToggle: "Скрыть/показать",
+		setFullWidth: "Растянуть",
+		resetFullWidth: "Восстановить"
 	},
 	initLocalStorage: function initLocalStorage() {
 		localStorage.getItem(this.keys.showMetasKey) || localStorage.setItem(this.keys.showMetasKey, true);
+        localStorage.setItem(this.keys.containerMaxWidth, this.$container.css('max-width'));
+        localStorage.setItem(this.keys.contentMaxWidth, this.$content.css('max-width'));
+        localStorage.setItem(this.keys.isFullWidth, false);
 		return this;
 	},
-	$sidebar: $("#sidebar"),
 	addButtons: function () {
-
 		var self = this,
 		addWatchedTags = function () {
 			var tags = [],
@@ -60,7 +69,7 @@ var ruSO = {
 				$elem.parent().find("ul.s-sidebarwidget--content")[isVisible ? "show" : "hide"](ruSO.params.animationSpeed);
 			};
 			self.$sidebar
-			.find("div.s-sidebarwidget:first div.s-sidebarwidget--header")
+			.find("div.s-sidebarwidget:first div.s-sidebarwidget--header, #how-to-format, #how-to-title")
 			.each(function (idx, itm) {
 				var $itm = $(itm);
 				$itm
@@ -73,9 +82,43 @@ var ruSO = {
 				});
 				showHideMetas($itm);
 			});
-		};
+		},
+        addFullWidth = function() {
+            var $header = $("#question-header");
+            var $btn = $header.find('div').clone();
+            $btn.attr('id', 'set-full-width-btn').find('a')
+            .removeClass('s-btn__primary')
+            .addClass('s-btn__filled')
+            .attr('href', '#')
+            .text(self.strings.setFullWidth)
+            .on('click', function() {
+                var isFullWidth = localStorage.getItem(self.keys.isFullWidth) === 'true';
+                if(isFullWidth) {
+                    self.resetFullWidth();
+                }
+                else {
+                    self.setFullWidth();
+                }
+            });
+            $header.append($btn);
+        };
 		addWatchedTags();
 		addMetaToggles();
+        addFullWidth();
 		return this;
-	}
+	},
+    setFullWidth: function(){
+        this.$container.css({'max-width':'none'});
+        this.$content.css({'max-width':'none'});
+        $('#set-full-width-btn').find('a').text(this.strings.resetFullWidth);
+        localStorage.setItem(this.keys.isFullWidth, true);
+        return this;
+    },
+    resetFullWidth: function(){
+        this.$container.css({'max-width':localStorage.getItem(this.keys.containerMaxWidth)});
+        this.$content.css({'max-width':localStorage.getItem(this.keys.contentMaxWidth)});
+        $('#set-full-width-btn').find('a').text(this.strings.setFullWidth);
+        localStorage.setItem(this.keys.isFullWidth, false);
+        return this;
+    }
 };
