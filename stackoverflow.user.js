@@ -2,7 +2,7 @@
 // @name        SO
 // @namespace   https://github.com/XelaNimed
 // @version     0.7.0
-// @description Various improvements for Russian-language StackOverflow.
+// @description Various improvements for StackOverflow.
 // @author      Xela Nimed
 // @match       https://*.stackoverflow.com/*
 // @match       https://*.meta.stackoverflow.com/*
