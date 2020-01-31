@@ -7,8 +7,8 @@
 // @match       https://*.stackoverflow.com/*
 // @match       https://*.meta.stackoverflow.com/*
 // @grant       none
-// @updateURL   https://raw.githubusercontent.com/XelaNimed/ruSO/master/ruSO-WatchedTags.user.js
-// @downloadURL https://raw.githubusercontent.com/XelaNimed/ruSO/master/ruSO-WatchedTags.user.js
+// @updateURL   https://raw.githubusercontent.com/XelaNimed/ruSO/master/stackoverflow.user.js
+// @downloadURL https://raw.githubusercontent.com/XelaNimed/ruSO/master/stackoverflow.user.js
 // @iconURL     https://cdn.sstatic.net/Sites/ru/img/favicon.ico
 // ==/UserScript==
 const $ = window.jQuery;
