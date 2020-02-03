@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SO
 // @namespace   https://github.com/XelaNimed
-// @version     0.7.1
+// @version     0.7.2
 // @description Various improvements for StackOverflow.
 // @author      XelaNimed
 // @match       https://*.stackoverflow.com/*
@@ -49,7 +49,7 @@ var ruSO = {
 	addButtons: function () {
 		var self = this,
 		addWatchedTags = function () {
-			var tags = [],
+			let tags = [],
 			urlPrefix = window.location.origin + '/questions/tagged/';
 			$('.js-watched-tag-list a.user-tag').each(function (idx, itm) {
 				let url = itm.href;
@@ -72,7 +72,7 @@ var ruSO = {
 			self.$sidebar
 			.find('div.s-sidebarwidget:first div.s-sidebarwidget--header, #how-to-format, #how-to-title')
 			.each(function (idx, itm) {
-				var $itm = $(itm);
+				let $itm = $(itm);
 				$itm
 				.attr('title', ruSO.strings.clickToToggle)
 				.css('cursor', 'pointer')
@@ -85,7 +85,7 @@ var ruSO = {
 			});
 		},
         addFullWidth = function() {
-            var $header = $('#question-header');
+            let $header = $('#question-header');
             self.$fullWidthBtn = $header.find('div').clone();
             self.$fullWidthBtn.attr('id', 'set-full-width-btn').find('a')
             .removeClass('s-btn__primary')
