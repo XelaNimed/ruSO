@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SO
 // @namespace   https://github.com/XelaNimed
-// @version     0.8.0
+// @version     0.8.1
 // @description Various improvements for StackOverflow.
 // @author      XelaNimed
 // @match       https://*.stackoverflow.com/*
@@ -100,7 +100,7 @@ var ruSO = {
         addRedirectToSO = function(){
                 let localPrefix = "ru.";
                 let isLocalSO = location.host.substr(0,3) === localPrefix;
-                let btnText = isLocalSO ? "enSO" : "ruSO";
+                let btnText = isLocalSO ? "en" : "ru";
                 let $btn = $(`<div class="print:d-none"><a href="#" class="s-btn s-btn__filled s-btn__xs s-btn__icon ws-nowrap">${btnText}</a></div>`);
                 $btn.insertAfter($("#search"));
                 $btn.on('click', function() {
