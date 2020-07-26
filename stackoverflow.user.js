@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SO
 // @namespace   https://github.com/XelaNimed
-// @version     0.8.1
+// @version     0.8.2
 // @description Various improvements for StackOverflow.
 // @author      XelaNimed
 // @match       https://*.stackoverflow.com/*
@@ -67,7 +67,7 @@ var ruSO = {
 		addMetaToggles = function () {
 			let showHideMetas = function ($elem) {
 				let isVisible = localStorage.getItem(self.keys.showMetasKey) === 'true';
-				$elem.parent().find('ul.s-sidebarwidget--content')[isVisible ? 'show' : 'hide'](ruSO.params.animationSpeed);
+				$elem.parent().children('li')[isVisible ? 'show' : 'hide'](ruSO.params.animationSpeed);
 			};
 			self.$sidebar
 			.find('div.s-sidebarwidget:first div.s-sidebarwidget--header, #how-to-format, #how-to-title')
