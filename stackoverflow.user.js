@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SO
 // @namespace   https://github.com/XelaNimed
-// @version     0.8.3
+// @version     0.8.4
 // @description Various improvements for StackOverflow.
 // @author      XelaNimed
 // @match       https://*.stackoverflow.com/*
@@ -130,12 +130,13 @@ var ruSO = {
                 let $userUrl = $userDetail.find('a');
                 let userName = $userUrl.text();
                 let userId = $userUrl[0].href.split('/')[4];
-                let baseSearhcUrl = 'https://ru.stackoverflow.com/search?tab=newest&q=user%3A' + userId + '+is%3Aq'
-                $('<span>? ' +
-                    '<a href="' + baseSearhcUrl + '" title="Все вопросы ' + userName + '">все</a>, ' +
-                    '<a href="' + baseSearhcUrl + '+' + tagsUrl+ '" title="Вопросы ' + userName + ' с метками текущего вопроса">с такими-же метками</a>' +
-                  '</span>')
-                .insertAfter($userDetail);
+                let baseSearhcUrl = 'https://ru.stackoverflow.com/search?tab=newest&q=user%3A' + userId + '+is%3Aq';
+                let elem = '<span>? <a href="' + baseSearhcUrl + '" title="Все вопросы ' + userName + '">все</a>';
+                if(tags.length > 0){
+                    elem += ', <a href="' + baseSearhcUrl + '+' + tagsUrl+ '" title="Вопросы ' + userName + ' с метками текущего вопроса">с такими-же метками</a>';
+                }
+                elem += '</span>';
+                $(elem).insertAfter($userDetail);
             }
         }
         return this;
