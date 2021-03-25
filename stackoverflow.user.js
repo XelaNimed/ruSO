@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SO
 // @namespace   https://github.com/XelaNimed
-// @version     0.8.2
+// @version     0.8.3
 // @description Various improvements for StackOverflow.
 // @author      XelaNimed
 // @match       https://*.stackoverflow.com/*
@@ -16,7 +16,8 @@ const $ = window.jQuery;
 window.addEventListener('load', function () {
 	ruSO
 	.initLocalStorage()
-	.addButtons();
+	.addButtons()
+    .addAuthorQuestionsLinks();
 }, false);
 
 var ruSO = {
@@ -115,6 +116,30 @@ var ruSO = {
         addRedirectToSO();
 		return this;
 	},
+    addAuthorQuestionsLinks: function(){
+        let $userDetails = $('div.user-info > div.user-details');
+        if($userDetails.length > 0){
+            let $postTags = $('div.post-taglist').find('a.post-tag');
+            let tags = [];
+            for(let i = 0; i < $postTags.length; i++){
+                tags.push('[' + $postTags[i].href.split('/').slice(-1).pop() + ']');
+            }
+            let tagsUrl = tags.join('+or+');
+            for(let i = 0; i < $userDetails.length; i++){
+                let $userDetail = $($userDetails[i]);
+                let $userUrl = $userDetail.find('a');
+                let userName = $userUrl.text();
+                let userId = $userUrl[0].href.split('/')[4];
+                let baseSearhcUrl = 'https://ru.stackoverflow.com/search?tab=newest&q=user%3A' + userId + '+is%3Aq'
+                $('<span>? ' +
+                    '<a href="' + baseSearhcUrl + '" title="Все вопросы ' + userName + '">все</a>, ' +
+                    '<a href="' + baseSearhcUrl + '+' + tagsUrl+ '" title="Вопросы ' + userName + ' с метками текущего вопроса">с такими-же метками</a>' +
+                  '</span>')
+                .insertAfter($userDetail);
+            }
+        }
+        return this;
+    },
     setFullWidth: function() {
         this.$container.add(this.$content).css({'max-width':'none'});
         this.$fullWidthBtn.find('a').text(this.strings.resetFullWidth);
