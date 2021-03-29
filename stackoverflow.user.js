@@ -13,7 +13,7 @@
 // @homepageURL https://raw.githubusercontent.com/XelaNimed/ruSO
 // @supportURL  https://github.com/XelaNimed/ruSO/issues
 // @iconURL     https://raw.githubusercontent.com/XelaNimed/ruSO/master/stackoverflow.ico
-// @license     CC-BY-NC-SA-4.0; https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
+// @license     MIT
 // ==/UserScript==
 const $ = window.jQuery;
 
