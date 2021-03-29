@@ -117,7 +117,7 @@ var ruSO = {
 		return this;
 	},
     addAuthorQuestionsLinks: function(){
-        let $userDetails = $('div.user-info > div.user-details');
+        let $userDetails = $('div.owner > div.user-info > div.user-details');
         if($userDetails.length > 0){
             let $postTags = $('div.post-taglist').find('a.post-tag');
             let tags = [];
