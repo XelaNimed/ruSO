@@ -1,15 +1,19 @@
 // ==UserScript==
-// @name        SO
+// @name        StackOverflow extended
 // @namespace   https://github.com/XelaNimed
 // @version     0.8.5
-// @description Various improvements for StackOverflow.
+// @description Hiding and saving the state of the "Blog", "Meta" blocks by clicking; adding links to all questions of the author and all questions only with tags of the current question to the user's card; stretching and restoring page content for better reading of code listings; redirecting from localized versions of the site to an English-language domain with a search for the current question.
 // @author      XelaNimed
+// @copyright   2021, XelaNimed (https://github.com/XelaNimed)
 // @match       https://*.stackoverflow.com/*
 // @match       https://*.meta.stackoverflow.com/*
 // @grant       none
 // @updateURL   https://raw.githubusercontent.com/XelaNimed/ruSO/master/stackoverflow.user.js
 // @downloadURL https://raw.githubusercontent.com/XelaNimed/ruSO/master/stackoverflow.user.js
-// @iconURL     https://cdn.sstatic.net/Sites/ru/img/favicon.ico
+// @homepageURL https://raw.githubusercontent.com/XelaNimed/ruSO
+// @supportURL  https://github.com/XelaNimed/ruSO/issues
+// @iconURL     https://raw.githubusercontent.com/XelaNimed/ruSO/master/stackoverflow.ico
+// @license     CC-BY-NC-SA-4.0; https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
 // ==/UserScript==
 const $ = window.jQuery;
 
