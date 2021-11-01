@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        StackOverflow extended
 // @namespace   https://github.com/XelaNimed
-// @version     0.8.8
+// @version     0.8.9
 // @description Hiding and saving the state of the "Blog", "Meta" blocks by clicking; adding links to all questions of the author and all questions only with tags of the current question to the user's card; stretching and restoring page content for better reading of code listings; redirecting from localized versions of the site to an English-language domain with a search for the current question.
 // @author      XelaNimed
 // @copyright   2021, XelaNimed (https://github.com/XelaNimed)
@@ -10,9 +10,9 @@
 // @grant       none
 // @updateURL   https://openuserjs.org/meta/XelaNimed/StackOverflow_extended.meta.js
 // @downloadURL https://openuserjs.org/install/XelaNimed/StackOverflow_extended.min.user.js
-// @homepageURL https://raw.githubusercontent.com/XelaNimed/ruSO
+// @homepageURL https://github.com/XelaNimed/ruSO
 // @supportURL  https://github.com/XelaNimed/ruSO/issues
-// @iconURL     https://raw.githubusercontent.com/XelaNimed/ruSO/master/stackoverflow.ico
+// @iconURL     https://www.google.com/s2/favicons?domain=stackoverflow.com&sz=32
 // @license     MIT
 // ==/UserScript==
 const $ = window.jQuery;
@@ -94,7 +94,7 @@ var ruSO = {
             return;
           }
           const host = 'meta.' + window.location.host;
-          const elem = '<a href="https://meta.' + window.location.host" ' +
+          const elem = '<a href="https://meta.' + window.location.host + '" ' +
                           'class="-logo" ' +
                           'style="flex: 0;width: 28px;height: 13px;padding: 17px;margin-right: 5px;background-repeat: no-repeat;background-position: center;background-image:url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAANCAIAAAA15Zn9AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoV2luZG93cykiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6MDE0QkFBMEZBMUIzMTFFQkE4ODlEMUVFQkJBQjVEQzgiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6MDE0QkFBMTBBMUIzMTFFQkE4ODlEMUVFQkJBQjVEQzgiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDowMTRCQUEwREExQjMxMUVCQTg4OUQxRUVCQkFCNURDOCIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDowMTRCQUEwRUExQjMxMUVCQTg4OUQxRUVCQkFCNURDOCIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PhtX650AAAFXSURBVHjaYvxzfdevg5P/vbjOQA3AKCDN7l7N+LXf7v/HZwzUA0wSmoxfGlQYqA1Y4CyO+CXMCubfJtgDHQ5hf18QDSTZHPLgan4dmITG/X1wMnf52b8PTv5YmYXFUAgA6vl9YR3QLGRBoGZGRkYg49/DU0BTWO1z/3948ufieiCXWd2ZgYOPWcOVkV8KHoxM6C43CGb3qMb00f/////cPwF0EdACkOkfngIZQC6rQTBUo4YrIlixhbQWpvOBCM35IMDOA3Tj3xu7gaazGATh9D4k1H6fmM9qkQgX/Nqoij1CwK5jhrmRSVzj38sbWFwKDDKgEX9u7EEW5K6/DUFoilktEhh+fAJq+X1yATjogtBd+ufiOmDAQ0Pw41OgUiAJiRlMi/99eAJk/L259zcwxi6sA4n++AwRBGUBWqRTJmBSoLKJ4hpM7B41QIpaJgKdCIxngAADAE/toRBBhVaYAAAAAElFTkSuQmCC\');">' +
                           '<span></span>' +
