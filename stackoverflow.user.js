@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        StackOverflow extended
 // @namespace   https://github.com/XelaNimed
-// @version     0.8.7
+// @version     0.8.8
 // @description Hiding and saving the state of the "Blog", "Meta" blocks by clicking; adding links to all questions of the author and all questions only with tags of the current question to the user's card; stretching and restoring page content for better reading of code listings; redirecting from localized versions of the site to an English-language domain with a search for the current question.
 // @author      XelaNimed
 // @copyright   2021, XelaNimed (https://github.com/XelaNimed)
