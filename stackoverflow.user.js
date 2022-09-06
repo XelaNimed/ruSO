@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name        StackOverflow extended
 // @namespace   https://github.com/XelaNimed
-// @version     0.8.12
-// @description Hiding and saving the state of the "Blog", "Meta" blocks by clicking; adding links to all questions of the author and all questions only with tags of the current question to the user's card; stretching and restoring page content for better reading of code listings; redirecting from localized versions of the site to an English-language domain with a search for the current question.
+// @version     0.9.0
+// @description Copy code to clipboard; hiding and saving the state of the "Blog", "Meta" blocks by clicking; adding links to all questions of the author and all questions only with tags of the current question to the user's card; stretching and restoring page content for better reading of code listings; redirecting from localized versions of the site to an English-language domain with a search for the current question.
 // @author      XelaNimed
 // @copyright   2021, XelaNimed (https://github.com/XelaNimed)
 // @match       https://*.stackoverflow.com/*
@@ -21,7 +21,8 @@ window.addEventListener('load', function () {
     ruSO
     .initLocalStorage()
     .addButtons()
-    .addAuthorQuestionsLinks();
+    .addAuthorQuestionsLinks()
+    .addCopyToClipboard();
 }, false);
 
 var ruSO = {
@@ -42,7 +43,10 @@ var ruSO = {
         watchedTagsText: 'Отслеживаемые метки',
         clickToToggle: 'Скрыть/показать',
         setFullWidth: 'Растянуть',
-        resetFullWidth: 'Восстановить'
+        resetFullWidth: 'Восстановить',
+        copy: 'Копировать',
+        copied: 'Скопировано',
+        canNotCopy: 'Не могу скопировать'
     },
     initLocalStorage: function initLocalStorage() {
 
@@ -191,6 +195,105 @@ var ruSO = {
         });
         this.$fullWidthBtn.find('a').text(this.strings.setFullWidth);
         localStorage[this.keys.fooFullWidth] = 'setFullWidth';
+        return this;
+    },
+    selectElemText: function(elem) {
+		let range = document.createRange();
+        range.selectNodeContents(elem);
+        let sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+    },
+    getSelectedText: function() {
+        let text = '';
+        if (window.getSelection) {
+            text = window.getSelection();
+        } else if (document.getSelection) {
+            text = document.getSelection();
+        } else if (document.selection) {
+            text = document.selection.createRange().text;
+        }
+        return text;
+    },
+    copyToClipboard: function(text) {
+        if (window.clipboardData && window.clipboardData.setData) {
+            return window.clipboardData.setData("Text", text);
+        } else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
+            let textarea = document.createElement("textarea");
+            textarea.textContent = text;
+            textarea.style.position = "fixed";
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                return document.execCommand("copy");
+            } catch (ex) {
+                console.warn("Copy to clipboard failed", ex);
+                return false;
+            } finally {
+                document.body.removeChild(textarea);
+            }
+        }
+    },
+	addCopyToClipboard: function() {
+		let self = this;
+        $("pre").each(function () {
+            let $pre = $(this);
+            let $parent = $pre.parent();
+            if($parent.hasClass('snippet-code'))
+            {
+                let padding = ($parent.innerWidth() - $parent.width()) / 2;
+                $pre.wrapAll('<div style="position: relative; padding-bottom: ' + padding + 'px;"></div>');
+            } else {
+                $pre.wrapAll('<div style="position: relative;"></div>');
+            }
+
+            let $btn = $("<button class='copy-code-button s-btn s-btn__filled s-btn__xs'>" + self.strings.copy + "</button>");
+            $btn.css({
+                "position": "absolute",
+                "top": "6px",
+                "right": "12px",
+                "display": "none"
+            });
+            $pre.append($btn);
+
+            let $container = $btn.siblings("code");
+            $pre.hover(function () {
+                $(this).children(".copy-code-button").css("display", "block");
+            }, function () {
+                $(this).children(".copy-code-button").css("display", "none");
+            });
+
+            setTimeout(function () {
+                if ($container.length == 0) {
+                    $pre.contents().filter(function () {
+                        return this.className !== "copy-code-button";
+                    }).wrapAll('<code style= "overflow-x: auto; padding: 0px;"></code>');
+                    $container = $btn.siblings("code").get(0);
+                } else {
+                    $container = $container.get(0);
+                }
+            }, 0);
+
+            $btn.click(function () {
+                self.selectElemText($container);
+                let selectedText = self.getSelectedText();
+                let buttonNewText = "";
+                if (self.copyToClipboard(selectedText) == true) {
+                    buttonNewText = self.strings.copied;
+                    self.selectElemText($container);
+                } else {
+                    buttonNewText = self.strings.canNotCopy;
+                    self.selectElemText($container);
+                }
+                $(this).text(buttonNewText);
+                let that = this;
+                setTimeout(function () {
+                    $(that).text(self.strings.copy);
+                    let selection = window.getSelection(); // clear text range
+                    selection.removeAllRanges();
+                }, 400);
+            });
+        });
         return this;
     }
 };
