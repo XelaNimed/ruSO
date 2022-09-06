@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        StackOverflow extended
 // @namespace   https://github.com/XelaNimed
-// @version     0.9.0
+// @version     0.9.1
 // @description Copy code to clipboard; hiding and saving the state of the "Blog", "Meta" blocks by clicking; adding links to all questions of the author and all questions only with tags of the current question to the user's card; stretching and restoring page content for better reading of code listings; redirecting from localized versions of the site to an English-language domain with a search for the current question.
 // @author      XelaNimed
 // @copyright   2021, XelaNimed (https://github.com/XelaNimed)
@@ -46,7 +46,8 @@ var ruSO = {
         resetFullWidth: 'Восстановить',
         copy: 'Копировать',
         copied: 'Скопировано',
-        canNotCopy: 'Не могу скопировать'
+        canNotCopy: 'Упс, ошибка',
+        intoClipboard: 'В буфер'
     },
     initLocalStorage: function initLocalStorage() {
 
@@ -235,12 +236,49 @@ var ruSO = {
         }
     },
 	addCopyToClipboard: function() {
+
 		let self = this;
+
+        let toClipboard = function($elems) {
+
+        };
+
+        $('.snippet-ctas').each(function() {
+            let $el = $(this);
+            let $availableBtn = $el.find('.copySnippet');
+            let $snipBtn = $availableBtn.clone();
+            $snipBtn.val(self.strings.intoClipboard);
+            $snipBtn.click(function() {
+
+                let code = "";
+
+                $snipBtn.closest('.snippet-code').find('pre > code').each(function() {
+                    let $this = $(this);
+                    self.selectElemText(this);
+                    let selectedText = self.getSelectedText();
+                    code += selectedText + '\n';
+                    window.getSelection().removeAllRanges();
+                });
+
+                if(self.copyToClipboard(code)) {
+                    $snipBtn.val(self.strings.copied);
+                } else {
+                    $snipBtn.val(self.strings.canNotCopy);
+                }
+
+                setTimeout(function () {
+                    $snipBtn.val(self.strings.intoClipboard);
+                }, 2000);
+            });
+            $availableBtn.after($snipBtn);
+        });
+
         $("pre").each(function () {
+
             let $pre = $(this);
             let $parent = $pre.parent();
-            if($parent.hasClass('snippet-code'))
-            {
+
+            if($parent.hasClass('snippet-code')) {
                 let padding = ($parent.innerWidth() - $parent.width()) / 2;
                 $pre.wrapAll('<div style="position: relative; padding-bottom: ' + padding + 'px;"></div>');
             } else {
@@ -258,9 +296,9 @@ var ruSO = {
 
             let $container = $btn.siblings("code");
             $pre.hover(function () {
-                $(this).children(".copy-code-button").css("display", "block");
+                $btn.css("display", "block");
             }, function () {
-                $(this).children(".copy-code-button").css("display", "none");
+                $btn.css("display", "none");
             });
 
             setTimeout(function () {
@@ -280,17 +318,14 @@ var ruSO = {
                 let buttonNewText = "";
                 if (self.copyToClipboard(selectedText) == true) {
                     buttonNewText = self.strings.copied;
-                    self.selectElemText($container);
                 } else {
                     buttonNewText = self.strings.canNotCopy;
-                    self.selectElemText($container);
                 }
+                window.getSelection().removeAllRanges();
                 $(this).text(buttonNewText);
                 let that = this;
                 setTimeout(function () {
                     $(that).text(self.strings.copy);
-                    let selection = window.getSelection(); // clear text range
-                    selection.removeAllRanges();
                 }, 400);
             });
         });
