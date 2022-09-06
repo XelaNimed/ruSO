@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        StackOverflow extended
 // @namespace   https://github.com/XelaNimed
-// @version     0.8.11
+// @version     0.8.12
 // @description Hiding and saving the state of the "Blog", "Meta" blocks by clicking; adding links to all questions of the author and all questions only with tags of the current question to the user's card; stretching and restoring page content for better reading of code listings; redirecting from localized versions of the site to an English-language domain with a search for the current question.
 // @author      XelaNimed
 // @copyright   2021, XelaNimed (https://github.com/XelaNimed)
@@ -45,7 +45,12 @@ var ruSO = {
         resetFullWidth: 'Восстановить'
     },
     initLocalStorage: function initLocalStorage() {
-        localStorage[this.keys.showMetasKey] || localStorage.setItem(this.keys.showMetasKey, true);
+
+        if(localStorage.getItem(this.keys.showMetasKey) == null)
+        {
+            localStorage.setItem(this.keys.showMetasKey, true);
+        }
+
         localStorage[this.keys.containerMaxWidth] = this.$container.css('max-width');
         localStorage[this.keys.contentMaxWidth] = this.$content.css('max-width');
         localStorage[this.keys.fooFullWidth] = 'setFullWidth';
@@ -72,10 +77,19 @@ var ruSO = {
         addMetaToggles = function () {
             let showHideMetas = function ($elem) {
                 let isVisible = localStorage.getItem(self.keys.showMetasKey) === 'true';
-                $elem.parent().children('li')[isVisible ? 'show' : 'hide'](ruSO.params.animationSpeed);
+                let $elems = $elem.parent().children('li.s-sidebarwidget--item');
+                $elems.each(function(idx, itm){
+                    let $itm = $(itm);
+                    if(isVisible)
+                    {
+                        $itm.removeAttr('style');
+                    } else {
+                         $itm.attr('style', 'display: none !important');
+                    }
+                });
             };
             self.$sidebar
-            .find('div.s-sidebarwidget:first div.s-sidebarwidget--header, #how-to-format, #how-to-title')
+            .find('div.s-sidebarwidget li.s-sidebarwidget--header')
             .each(function (idx, itm) {
                 let $itm = $(itm);
                 $itm
