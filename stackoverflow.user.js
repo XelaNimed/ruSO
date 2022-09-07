@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        StackOverflow extended
 // @namespace   https://github.com/XelaNimed
-// @version     0.9.1
+// @version     0.9.2
 // @description Copy code to clipboard; hiding and saving the state of the "Blog", "Meta" blocks by clicking; adding links to all questions of the author and all questions only with tags of the current question to the user's card; stretching and restoring page content for better reading of code listings; redirecting from localized versions of the site to an English-language domain with a search for the current question.
 // @author      XelaNimed
 // @copyright   2021, XelaNimed (https://github.com/XelaNimed)
@@ -72,10 +72,9 @@ var ruSO = {
             });
             if (tags.length) {
                 let url = urlPrefix + tags.join('+or+');
-                let spanArr = self.$sidebar.find("span:contains('" + self.strings.watchedTagsText + "')");
-                self.$sidebar.find('span.grid--cell.mr4').hide();
-                if (spanArr.length > 0) {
-                    spanArr[0].innerHTML = '<a class="post-tag user-tag" href="' + url + '">' + self.strings.watchedTagsText + '</a>';
+                let arr = self.$sidebar.find("h2, span").filter(":contains('" + self.strings.watchedTagsText + "')");
+                if (arr.length > 0) {
+                    arr[0].innerHTML = '<a class="post-tag user-tag" href="' + url + '">' + self.strings.watchedTagsText + '</a>';
                 }
             }
         },
