@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        StackOverflow extended
 // @namespace   https://github.com/XelaNimed
-// @version     0.9.4
+// @version     0.9.5
 // @description Copy code to clipboard; hiding and saving the state of the "Blog", "Meta" blocks by clicking; adding links to all questions of the author and all questions only with tags of the current question to the user's card; stretching and restoring page content for better reading of code listings; redirecting from localized versions of the site to an English-language domain with a search for the current question.
 // @author      XelaNimed
 // @copyright   2021, XelaNimed (https://github.com/XelaNimed)
@@ -107,11 +107,12 @@ var ruSO = {
                 showHideMetas($itm);
             });
         },
-        addLinkToMeta = function () {
-            if (window.location.host.includes('meta.')) {
-                return;
-            }
-            $('<li><ol class="nav-links"><a href="https://meta.' + window.location.host + '" class="nav-links--link">Meta</a></ol></li>').insertAfter($('#left-sidebar nav > ol > li').last());
+        addLinkToMeta = function () {            const isMeta = window.location.host.includes('meta.');
+            const link = isMeta
+                  ? window.location.host.split('.').filter(part => part !== 'meta').join('.')
+                  : 'meta.' + window.location.host;
+            const linkText = isMeta ? 'StackOverflow' : 'Meta'
+            $('<li><ol class="nav-links"><a href="https://' + link + '" class="nav-links--link">' + linkText + '</a></ol></li>').insertAfter($('#left-sidebar nav > ol > li').last());
         },
         addFullWidth = function () {
             let $header = $('#question-header');
