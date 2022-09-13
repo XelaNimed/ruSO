@@ -1,29 +1,27 @@
 // ==UserScript==
 // @name        StackOverflow extended
 // @namespace   https://github.com/XelaNimed
-// @version     0.9.5
+// @version     0.10.0
 // @description Copy code to clipboard; hiding and saving the state of the "Blog", "Meta" blocks by clicking; adding links to all questions of the author and all questions only with tags of the current question to the user's card; stretching and restoring page content for better reading of code listings; redirecting from localized versions of the site to an English-language domain with a search for the current question.
 // @author      XelaNimed
 // @copyright   2021, XelaNimed (https://github.com/XelaNimed)
 // @match       https://*.stackoverflow.com/*
 // @match       https://*.meta.stackoverflow.com/*
-// @grant       none
+// @grant       GM_getResourceText
+// @grant       GM_addStyle
 // @updateURL   https://openuserjs.org/meta/XelaNimed/StackOverflow_extended.meta.js
 // @downloadURL https://openuserjs.org/install/XelaNimed/StackOverflow_extended.min.user.js
 // @homepageURL https://github.com/XelaNimed/ruSO
 // @supportURL  https://github.com/XelaNimed/ruSO/issues
 // @iconURL     https://www.google.com/s2/favicons?domain=stackoverflow.com&sz=32
+// @require     https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js#sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==
+// @require     https://cdnjs.cloudflare.com/ajax/libs/izimodal/1.6.1/js/iziModal.min.js#sha512-lR/2z/m/AunQdfBTSR8gp9bwkrjwMq1cP0BYRIZu8zd4ycLcpRYJopB+WsBGPDjlkJUwC6VHCmuAXwwPHlacww==
+// @resource    IZI_MODAL https://cdnjs.cloudflare.com/ajax/libs/izimodal/1.6.1/css/iziModal.min.css
 // @license     MIT
 // ==/UserScript==
-const $ = window.jQuery;
 
-window.addEventListener('load', function () {
-    ruSO
-    .initLocalStorage()
-    .addButtons()
-    .addAuthorQuestionsLinks()
-    .addCopyToClipboard();
-}, false);
+
+var $ = window.jQuery;
 
 var ruSO = {
     $sidebar: $('#sidebar'),
@@ -37,7 +35,11 @@ var ruSO = {
         showMetasKey: 'showMetaPosts',
         contentMaxWidth: 'contentMaxWidth',
         containerMaxWidth: 'containerMaxWidth',
-        fooFullWidth: 'fooFullWidth'
+        fooFullWidth: 'fooFullWidth',
+        nativeLang: 'nativeLanguage',
+        useSearchRedirectBtn: 'useSearchRedirectBtn',
+        addLinkToMeta: 'addLinkToMeta',
+        toggleMetaBlock: 'toggleMetaBlock'
     },
     strings: {
         clickToToggle: 'Скрыть/показать',
@@ -47,6 +49,123 @@ var ruSO = {
         copied: 'Скопировано',
         canNotCopy: 'Упс, ошибка',
         intoClipboard: 'В буфер'
+    },
+
+    // local staorage access
+    isUseSearchRedirectBtn: function() {
+        return localStorage[this.keys.useSearchRedirectBtn] == 'true';
+    },
+    getNativeLang: function() {
+        return localStorage[this.keys.nativeLang];
+    },
+    isNativeLang: function(lang) {
+        return localStorage[this.keys.nativeLang] === lang;
+    },
+    addLinkToMeta: function() {
+        return localStorage[this.keys.addLinkToMeta] == 'true';
+    },
+    toggleMetaBlock: function() {
+        return localStorage[this.keys.toggleMetaBlock] == 'true';
+    },
+
+    init: function() {
+
+        'use strict';
+
+        let self = this;
+
+        const langs = ['ru', 'es', 'pt', 'ja'];
+
+        if(localStorage[self.keys.nativeLang] === undefined ||
+           localStorage[self.keys.nativeLang] == null ||
+           localStorage[self.keys.nativeLang] === '') {
+            const lang = navigator.language || navigator.userLanguage;
+            if(langs.includes(lang)) {
+                localStorage[self.keys.nativeLang] = lang;
+            } else {
+                localStorage[self.keys.useSearchRedirectBtn] = false;
+            }
+        }
+        if(localStorage[self.keys.useSearchRedirectBtn] === undefined ||
+           localStorage[self.keys.useSearchRedirectBtn] == null ||
+           localStorage[self.keys.useSearchRedirectBtn] === '') {
+           localStorage[self.keys.useSearchRedirectBtn] = true;
+        }
+        if(localStorage[self.keys.toggleMetaBlock] === undefined ||
+           localStorage[self.keys.toggleMetaBlock] == null ||
+           localStorage[self.keys.toggleMetaBlock] === '') {
+           localStorage[self.keys.toggleMetaBlock] = true;
+        }
+
+        $(document.body).append('<div id="iziModal" style="display: none;">' +
+
+                                    '<div class="izi-content ba">' +
+
+                                        '<div class="d-flex ai-center jc-space-between p16">' +
+                                            '<label class="flex--item s-label p0" for="so-ex-search-btn-toggle">' +
+                                                '<div class="d-flex ai-center">Use redirect to enSO</div>' +
+                                                '<p class="s-description">When this option is enabled, a button redirecting the current search to the English-language StackOverflow site will be added at the end of the search field.</p>' +
+                                            '</label>' +
+                                            '<div class="flex--item s-toggle-switch">' +
+                                                '<input id="so-ex-search-btn-toggle" type="checkbox" ' + (self.isUseSearchRedirectBtn() ? 'checked="checked"' : '') + '>' +
+                                                '<div class="s-toggle-switch--indicator"></div>' +
+                                            '</div>' +
+                                        '</div>' +
+
+                                        '<div id="so-ext-native-language-block" class="d-flex ai-center jc-space-between p16' + (self.isUseSearchRedirectBtn() ? '' : ' o50 pe-none') + '">' +
+                                            '<label class="s-label flex--item" for="so-ext-native-language">Native language' +
+                                                '<p class="s-description">The two-letter code of your language, if it is different from English. Used when redirecting search queries from the localized site to the English version and back.</p>' +
+                                            '</label>' +
+                                            '<div class="d-flex">' +
+                                                '<select id="so-ext-native-language" class="flex--item s-input" style="width: 75px;" autofocus="true">' +
+                                                    (langs.flatMap(function(l) { return '<option value="' + l + '"' + (self.isNativeLang(l) ? ' selected="selected"' : '') + '>' + l + '</option>'; }).join('')) +
+                                                '</select>' +
+                                            '</div>' +
+                                        '</div>' +
+
+                                        '<div class="d-flex ai-center jc-space-between p16">' +
+                                            '<label class="flex--item s-label p0" for="so-ex-add-meta-link">' +
+                                                '<div class="d-flex ai-center">Add link to Meta</div>' +
+                                                '<p class="s-description">If this option is enabled, a link to Meta will be added to the side menu.</p>' +
+                                            '</label>' +
+                                            '<div class="flex--item s-toggle-switch">' +
+                                                '<input id="so-ex-add-meta-link" type="checkbox" ' + (self.addLinkToMeta() ? 'checked="checked"' : '') + '>' +
+                                                '<div class="s-toggle-switch--indicator"></div>' +
+                                            '</div>' +
+                                        '</div>' +
+
+                                        '<div class="d-flex ai-center jc-space-between p16">' +
+                                            '<label class="flex--item s-label p0" for="so-ex-toggle-meta-block">' +
+                                                '<div class="d-flex ai-center">Minimize the Meta block</div>' +
+                                                '<p class="s-description">If this option is enabled, the Meta block with popular questions can be minimized and maximized with the state saved in the local storage.</p>' +
+                                            '</label>' +
+                                            '<div class="flex--item s-toggle-switch">' +
+                                                '<input id="so-ex-toggle-meta-block" type="checkbox" ' + (self.toggleMetaBlock() ? 'checked="checked"' : '') + '>' +
+                                                '<div class="s-toggle-switch--indicator"></div>' +
+                                            '</div>' +
+                                        '</div>' +
+
+                                        '<div class="d-flex ai-center p16 button-panel">' +
+                                            '<button class="flex--item s-btn s-btn__filled" role="button" value="cancel">Cancel</button>' +
+                                            '<button class="flex--item s-btn s-btn__filled" role="button" value="save">Save</button>' +
+                                            '<button class="flex--item s-btn s-btn__primary" role="button" value="save-reload">Save and reload</button>' +
+                                        '</div>' +
+
+                                    '</div>' +
+
+                                '</div>');
+
+        GM_addStyle(GM_getResourceText("IZI_MODAL"));
+        GM_addStyle('#iziModal {  }' +
+                    '#iziModal .izi-content { background-color: rgb(57, 57, 57); border-color: rgb(64, 66, 69); color: rgb(207, 210, 214); }' +
+                    '#iziModal .izi-content > div { border-bottom: 1px solid rgba(245, 245, 245, 0.2); }' +
+                    '#iziModal label { color: rgb(242, 242, 243); }' +
+                    '#iziModal .s-description { color: rgb(207, 210, 214); }' +
+                    '#iziModal .button-panel { justify-content: flex-end; background-color: rgb(45, 45, 45); }' +
+                    '#iziModal .button-panel button { margin-left: 10px; }' +
+                    'body > div.iziModal-overlay { backdrop-filter: blur(2px); }');
+
+        return this;
     },
     initLocalStorage: function initLocalStorage() {
 
@@ -62,6 +181,52 @@ var ruSO = {
     },
     addButtons: function () {
         var self = this,
+        addScriptSettings = function() {
+            $('<li><ol class="nav-links"><a href="#" class="nav-links--link">UserScript settings</a></li></ol></li>')
+                .on('click', 'a', function(e) {
+                  $("#iziModal").iziModal({
+                      title: '<span style="color: rgb(207, 210, 214);">Extended StackOverflow Settings</span>',
+                      subtitle: 'All settings are saved in the local storage and will take effect when the page reloads',
+                      headerColor: 'rgba(45, 45, 45, 1)',
+                      background: 'rgba(78, 78, 71, 1)',
+                      radius: 3,
+                      icon: null,
+                      iconText: null,
+                      iconColor: '',
+                      width: 600,
+                      borderBottom: false,
+                      zindex: 9999,
+                      focusInput: true,
+                      bodyOverflow: false,
+                      fullscreen: true,
+                      openFullscreen: false,
+                      appendToOverlay: 'body', // or false
+                      overlay: true,
+                      overlayClose: true,
+                      overlayColor: 'rgba(0, 0, 0, 0.3)'
+                  }).iziModal('open');
+                })
+                .insertAfter($('#left-sidebar nav > ol > li').last());
+
+         $('#iziModal')
+            .on('click', 'button', function(e) {
+                 if(e.target.value.startsWith('save')) {
+                     localStorage[self.keys.nativeLang] = $('#so-ext-native-language option:selected').val();
+                     localStorage[self.keys.useSearchRedirectBtn] = $('#so-ex-search-btn-toggle').is(':checked');
+                     localStorage[self.keys.addLinkToMeta] = $('#so-ex-add-meta-link').is(':checked');
+                     localStorage[self.keys.toggleMetaBlock] = $('#so-ex-toggle-meta-block').is(':checked');
+                 }
+                 if(e.target.value.endsWith('reload')) {
+                     document.location.reload();
+                 }
+                 $('#iziModal').iziModal('close');
+            })
+            .on('change', 'input', function(e) {
+               if(e.target.id == 'so-ex-search-btn-toggle') {
+                   $('#so-ext-native-language-block')[e.target.checked ? 'removeClass' : 'addClass']('o50 pe-none');
+               }
+            });
+        },
         addWatchedTags = function () {
             let tags = [],
             urlPrefix = window.location.origin + '/questions/tagged/';
@@ -79,8 +244,11 @@ var ruSO = {
             }
         },
         addMetaToggles = function () {
+            if(!self.toggleMetaBlock()) {
+                return;
+            }
             let showHideMetas = function ($elem) {
-                let isVisible = localStorage.getItem(self.keys.showMetasKey) === 'true';
+                let isVisible = localStorage[self.keys.showMetasKey] === 'true';
                 let $elems = $elem.parent().children('li.s-sidebarwidget--item');
                 $elems.each(function(idx, itm){
                     let $itm = $(itm);
@@ -107,7 +275,11 @@ var ruSO = {
                 showHideMetas($itm);
             });
         },
-        addLinkToMeta = function () {            const isMeta = window.location.host.includes('meta.');
+        addLinkToMeta = function () {
+            if(!self.addLinkToMeta()) {
+                return;
+            }
+            const isMeta = window.location.host.includes('meta.');
             const link = isMeta
                   ? window.location.host.split('.').filter(part => part !== 'meta').join('.')
                   : 'meta.' + window.location.host;
@@ -128,9 +300,12 @@ var ruSO = {
             $header.append(self.$fullWidthBtn);
         },
         addRedirectToSO = function () {
-            let localPrefix = 'ru.';
+            if(!self.isUseSearchRedirectBtn()) {
+                return;
+            }
+            let localPrefix = self.getNativeLang() + '.';
             let isLocalSO = location.host.substr(0, 3) === localPrefix;
-            let btnText = isLocalSO ? 'en' : 'ru';
+            let btnText = isLocalSO ? 'en' : self.getNativeLang();
             let $btn = $('<div class="print:d-none"><a href="#" class="s-btn s-btn__filled s-btn__xs s-btn__icon ws-nowrap">' + btnText + '</a></div>');
             $btn.insertAfter($('#search'));
             $btn.on('click', function () {
@@ -144,6 +319,7 @@ var ruSO = {
         addLinkToMeta();
         addFullWidth();
         addRedirectToSO();
+        addScriptSettings();
         return this;
     },
     addAuthorQuestionsLinks: function () {
@@ -324,3 +500,13 @@ var ruSO = {
         return this;
     }
 };
+
+ruSO.init();
+
+window.addEventListener('load', function () {
+    ruSO
+    .initLocalStorage()
+    .addButtons()
+    .addAuthorQuestionsLinks()
+    .addCopyToClipboard();
+}, false);
