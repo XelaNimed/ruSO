@@ -6,7 +6,11 @@
 
 The custom script for StackOverflow adds the following functionality:
 
-- increasing the width of the used space for easy code reading;
-- adding a quick link to the English version of the site to find the current question and tags;
-- adding links to all of the author's questions and to questions with current labels only;
-- adding links to all questions with tracked tags;
+- expanding the content of the page for easy reading of the code;
+- adding a quick link to redirect the current search query to the English version of the site and back to the localized version of the site;
+- adding links to all questions of the author and only to questions with current tags to the card of the author of the question;
+- adding a link to all questions with tracked tags;
+- copying a section of code and the entire code widget to the clipboard;
+- hiding/expanding the "Meta" block with saving the state in the local storage;
+- adding a link to "Meta" in the side menu of the site;
+- editing script settings using the dialog box;
